@@ -61,7 +61,7 @@ function switchView(viewName) {
     const activeElement = views[viewName].querySelector('.slide-up-element');
     if(activeElement) {
         activeElement.style.animation = 'none';
-        activeElement.offsetHeight;
+        activeElement.offsetHeight; /* trigger reflow */
         activeElement.style.animation = null; 
     }
 
@@ -109,26 +109,6 @@ const formatScientific = (bigIntValue) => {
     return `${str[0]},${str.substring(1, 3)} &times; 10<sup class="text-[10px]">${str.length - 1}</sup>`;
 };
 
-const formatTime = (seconds) => {
-    if (seconds === 0) return "0 detik";
-    if (seconds < 1) return "Instan (< 1 dtk)";
-    if (seconds < 60) return `${Math.floor(seconds)} detik`;
-    
-    let mins = seconds / 60;
-    if (mins < 60) return `${mins.toFixed(1)} menit`;
-    
-    let hours = mins / 60;
-    if (hours < 24) return `${hours.toFixed(1)} jam`;
-    
-    let days = hours / 24;
-    if (days < 365) return `${days.toFixed(1)} hari`;
-    
-    let years = days / 365;
-    if (years < 100) return `${years.toFixed(1)} tahun`;
-    if (years < 1000) return "Berabad-abad";
-    return "Ribuan Tahun";
-};
-
 // ================= CACHED DOM ELEMENTS (Optimization) =================
 const DOM = {
     pwInput: document.getElementById('password'),
@@ -141,7 +121,6 @@ const DOM = {
     valPrime: document.getElementById('val-prime'),
     valGcd: document.getElementById('val-gcd'),
     valCoprime: document.getElementById('val-coprime'),
-    valTime: document.getElementById('val-time'),
     btnToggleVis: document.getElementById('toggleVisibility'),
     iconEye: document.getElementById('icon-eye'),
     iconEyeOff: document.getElementById('icon-eye-off')
@@ -163,7 +142,6 @@ const analyzePassword = () => {
     // Initialize vars
     let entropy = 0;
     let K = 0n;
-    let secondsApprox = 0;
 
     if (!isEmpty) {
         // Total Combinations (K = N^L) using BigInt
@@ -171,17 +149,12 @@ const analyzePassword = () => {
         
         // Shannon Entropy (H = L * log2(N))
         entropy = L * Math.log2(N);
-        
-        // Time Estimation T = K / (2 * v)
-        // v = 10^9 (1 Billion guesses per second)
-        const v = 1_000_000_000; 
-        secondsApprox = Number(K) / (2 * v);
     }
 
-    // 2. Entropy & Strength Logic
+    // 2. Update UI: Entropy & Strength Logic
     if (isEmpty) {
         DOM.strengthBar.style.width = '0%';
-        DOM.strengthBar.className = 'h-full rounded-full transition-all duration-500 ease-out bg-slate-300';
+        DOM.strengthBar.className = 'h-full rounded-full transition-all duration-700 ease-out bg-slate-300';
         DOM.strengthText.innerText = 'Belum ada data';
         DOM.strengthText.className = 'text-lg sm:text-xl font-bold text-slate-300';
         
@@ -218,13 +191,12 @@ const analyzePassword = () => {
 
     DOM.entropyBadge.innerHTML = `H = ${entropy.toFixed(2)} bit`;
 
-    // 3. Combinatorics & Time
+    // 3. Update UI: Combinatorics
     DOM.valN.innerText = N;
     DOM.valL.innerText = L;
     DOM.valK.innerHTML = isEmpty ? "0" : formatScientific(K);
-    DOM.valTime.innerText = formatTime(secondsApprox);
 
-    // 4. Number Theory
+    // 4. Update UI: Number Theory
     if (!isEmpty && N > 0) {
         DOM.valPrime.innerHTML = getPrimeFactors(N);
         
