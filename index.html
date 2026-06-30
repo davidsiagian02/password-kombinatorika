@@ -2,277 +2,297 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KriptoMath - Analisis Kata Sandi Anda</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KriptoMath - Analisis Kompleksitas Sandi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151e2e', 950: '#0a0f1c' },
+                        brand: { 500: '#3b82f6', 600: '#2563eb' }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        display: ['"Outfit"', 'sans-serif'],
+                        accent: ['"Caveat"', 'cursive']
+                    }
+                }
+            }
+        }
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative font-sans selection:bg-brand-500/30 selection:text-brand-700 dark:selection:text-brand-200">
 
-    <!-- ================= NAVBAR ================= -->
-    <nav class="fixed w-full top-0 z-50 glass-nav transition-all duration-300">
+    <div class="fixed inset-0 z-[-1]">
+        <div class="absolute inset-0 bg-grid"></div>
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500/10 dark:bg-brand-600/10 blur-[100px] pointer-events-none transition-colors duration-500"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 dark:bg-sky-600/10 blur-[100px] pointer-events-none transition-colors duration-500"></div>
+    </div>
+
+    <nav class="fixed w-full top-0 z-50 glass-panel border-b border-slate-200/50 dark:border-slate-800/50 transition-all duration-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <!-- Logo -->
+            <div class="flex justify-between h-16 md:h-20 items-center">
+                
                 <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onclick="switchView('landing')">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-blue-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center text-brand-600 dark:text-sky-400 font-mono text-lg md:text-xl shadow-sm dark:shadow-[0_0_15px_rgba(56,189,248,0.2)] group-hover:border-brand-400 dark:group-hover:border-sky-500/50 transition-all duration-300">
                         ∑
                     </div>
                     <div>
-                        <span class="font-bold text-lg sm:text-xl tracking-tight text-slate-800">Kripto<span class="text-indigo-600">Math</span></span>
-                        <p class="text-[9px] uppercase tracking-widest text-slate-500 font-semibold -mt-1">Diskrit Project</p>
+                        <span class="font-bold text-lg md:text-xl tracking-tight text-slate-900 dark:text-white font-display">Kripto<span class="text-brand-600 dark:text-sky-400">Math</span></span>
+                        <p class="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 font-semibold mt-0.5 font-mono">Diskrit Project</p>
                     </div>
                 </div>
-                <!-- Nav Links (Desktop) -->
-                <div class="hidden md:flex space-x-2">
-                    <button onclick="switchView('landing')" id="nav-btn-landing" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 bg-indigo-50 text-indigo-600 shadow-sm">
+
+                <div class="hidden md:flex space-x-1 p-1.5 bg-slate-100 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 transition-colors duration-500">
+                    <button onclick="switchView('landing')" id="nav-btn-landing" class="px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 bg-white dark:bg-slate-800 text-brand-600 dark:text-sky-400 shadow-sm border border-slate-200 dark:border-slate-700">
                         Beranda
                     </button>
-                    <button onclick="switchView('calculator')" id="nav-btn-calc" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50">
-                        Kalkulator
+                    <button onclick="switchView('calculator')" id="nav-btn-calc" class="px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50 border border-transparent">
+                        Kalkulator Analitik
                     </button>
-                    <button onclick="switchView('team')" id="nav-btn-team" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50">
+                    <button onclick="switchView('team')" id="nav-btn-team" class="px-5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50 border border-transparent">
                         Tim Peneliti
                     </button>
                 </div>
-                <!-- Mobile Hamburger Menu Button -->
-                <div class="md:hidden flex items-center">
-                    <button id="hamburger-btn" class="text-slate-600 hover:text-indigo-600 focus:outline-none p-2 rounded-lg hover:bg-indigo-50 transition-colors" aria-label="Toggle Menu">
-                        <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
+
+                <div class="flex items-center">
+                    <button onclick="toggleTheme()" class="p-2 md:p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-sky-400 transition-all duration-300 focus:outline-none hover:shadow-md">
+                        <svg id="icon-sun" class="w-4 h-4 md:w-5 md:h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <svg id="icon-moon" class="w-4 h-4 md:w-5 md:h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                     </button>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Mobile Navigation Dropdown Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-xl transition-all duration-300">
-            <div class="px-4 py-4 space-y-2">
-                <button onclick="switchView('landing'); toggleMobileMenu();" id="mobile-nav-btn-landing" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-colors bg-indigo-50 text-indigo-600">
-                    Beranda
-                </button>
-                <button onclick="switchView('calculator'); toggleMobileMenu();" id="mobile-nav-btn-calc" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-colors text-slate-600 hover:text-indigo-600 hover:bg-slate-50">
-                    Kalkulator
-                </button>
-                <button onclick="switchView('team'); toggleMobileMenu();" id="mobile-nav-btn-team" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-colors text-slate-600 hover:text-indigo-600 hover:bg-slate-50">
-                    Tim Peneliti
-                </button>
             </div>
         </div>
     </nav>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-grow pt-20 flex flex-col">
-
-        <!-- ================= 1. LANDING PAGE VIEW ================= -->
-        <div id="view-landing" class="flex-grow relative bg-pattern slide-up-element delay-100 flex flex-col">
-            
-            <!-- Floating Math Elements -->
-            <div class="absolute inset-0 overflow-hidden pointer-events-none z-0 hidden md:block">
-                <div class="absolute top-32 left-10 text-6xl text-indigo-200/50 font-math animate-float">ƒ(x)</div>
-                <div class="absolute top-1/4 right-20 text-8xl text-blue-200/40 font-math animate-float-delayed">∞</div>
-                <div class="absolute bottom-32 left-1/4 text-7xl text-purple-200/50 font-math animate-float">π</div>
-                <div class="absolute top-1/2 right-1/3 text-5xl text-slate-300/40 font-math animate-float-delayed">N<sup class="text-2xl">L</sup></div>
-            </div>
-
-            <!-- Hero Section -->
-            <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 flex flex-col items-center text-center">
-                
-                <span class="font-cursive text-2xl sm:text-3xl md:text-4xl text-indigo-500 mb-3 md:mb-4 slide-up-element delay-200">
-                    Kombinatorika & Teori Bilangan
-                </span>
-                
-                <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-tight mb-5 md:mb-6 max-w-4xl slide-up-element delay-300">
-                    Membongkar Kekuatan <br> <span class="text-gradient"> Kata Sandi</span>
-                </h1>
-                
-                <p class="mt-2 text-sm sm:text-base md:text-xl text-slate-600 max-w-2xl font-light mb-8 md:mb-10 slide-up-element delay-400">
-                    Bukan sekadar menebak. Temukan bagaimana matematika mengukur tingkat keamanan digital Anda dari ancaman para peretas.
-                </p>
-                
-                <div class="slide-up-element delay-500">
-                    <button onclick="switchView('calculator')" class="group relative px-6 py-3.5 sm:px-8 sm:py-4 bg-slate-900 text-white rounded-full font-semibold text-base sm:text-lg overflow-hidden shadow-2xl hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-1">
-                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <span class="relative flex items-center">
-                            Coba Kalkulator Sekarang
-                            <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                        </span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- How It Works Section -->
-            <div class="relative z-10 bg-white/80 backdrop-blur-sm border-t border-slate-200 py-12 sm:py-16 md:py-24 flex-grow">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    
-                    <div class="text-center mb-10 sm:mb-16">
-                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-3 sm:mb-4">Bagaimana Sistem Kami Bekerja?</h2>
-                        <p class="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto">Kami menggunakan prinsip matematika diskrit untuk mengukur ketangguhan pertahanan kata sandi Anda secara akurat.</p>
-                    </div>
-
-                    <!-- Balanced 2-Column Grid Layout -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
-                        
-                        <!-- Step 1 -->
-                        <div class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-slate-100">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-5 sm:mb-6">
-                                <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    <circle cx="6" cy="18" r="1.5" fill="currentColor"/>
-                                    <circle cx="18" cy="18" r="1.5" fill="currentColor"/>
-                                    <circle cx="12" cy="15" r="1.5" fill="currentColor"/>
-                                    <path d="M6 18l6-3 6 3" stroke-dasharray="2 2" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-2 sm:mb-3">1. Menghitung "Gembok" (Kombinatorika)</h3>
-                            <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                                Bayangkan gembok koper dengan angka 0-9. Hanya ada 1.000 kombinasi. Tapi jika Anda menambahkan kombinasi huruf besar, huruf kecil, dan simbol (@, #, !), kemungkinan kombinasinya meledak menjadi miliaran! Kami menghitung seluruh kemungkinan formulasinya dengan relasi <strong class="font-math font-semibold text-indigo-600">N<sup>L</sup></strong>.
-                            </p>
-                        </div>
-
-                        <!-- Step 2 -->
-                        <div class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-slate-100">
-                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-5 sm:mb-6">
-                                <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 20h18M5 4v16" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 16s4-12 7-12 7 12 7 12" />
-                                    <path d="M11 11h2v2" stroke-linecap="round" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg sm:text-xl font-bold text-slate-800 mb-2 sm:mb-3">2. Menilai Kualitas (Entropi)</h3>
-                            <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                                Tidak sekadar panjang, kata sandi harus acak. Dalam matematika, tingkat keacakan diukur menggunakan Entropi Shannon. Semakin tinggi entropinya, semakin "pusing" komputer peretas untuk memecahkan pola sandi karena sebaran probabilitas yang merata.
-                            </p>
-                        </div>
-
-                    </div>
-
-                    <!-- Example Comparison -->
-                    <div class="mt-12 sm:mt-16 bg-slate-900 rounded-3xl p-6 sm:p-8 md:p-12 text-white max-w-4xl mx-auto card-shadow">
-                        <h3 class="text-xl sm:text-2xl font-bold mb-6 sm:mb-8 text-center">Mari Lihat Perbedaannya</h3>
-                        
-                        <div class="space-y-4 sm:space-y-6">
-                            <!-- Weak -->
-                            <div class="flex flex-col sm:flex-row items-center justify-between p-4 bg-slate-800 rounded-2xl border border-rose-500/30 gap-4 text-center sm:text-left">
-                                <div>
-                                    <p class="text-slate-400 text-xs sm:text-sm mb-1">Sandi Biasa</p>
-                                    <p class="text-lg sm:text-xl font-math font-bold text-rose-400">rahasia123</p>
-                                </div>
-                                <div class="sm:text-right">
-                                    <p class="text-sm font-semibold text-rose-400">Lemah</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Strong -->
-                            <div class="flex flex-col sm:flex-row items-center justify-between p-4 bg-slate-800 rounded-2xl border border-emerald-500/30 gap-4 text-center sm:text-left">
-                                <div>
-                                    <p class="text-slate-400 text-xs sm:text-sm mb-1">Sandi yang Baik</p>
-                                    <p class="text-lg sm:text-xl font-math font-bold text-emerald-400">K0p!_P4h1t_99</p>
-                                </div>
-                                <div class="sm:text-right">
-                                    <p class="text-sm font-semibold text-emerald-400">Sangat Kuat</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+    <nav class="md:hidden fixed bottom-0 w-full glass-panel border-t border-slate-200 dark:border-slate-800 z-50 transition-all duration-500 pb-safe">
+        <div class="flex justify-around items-center h-[72px] px-2">
+            <button onclick="switchView('landing')" id="mob-btn-landing" class="flex flex-col items-center justify-center w-full h-full text-brand-600 dark:text-sky-400 transition-colors">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span class="text-[10px] font-semibold">Beranda</span>
+            </button>
+            <button onclick="switchView('calculator')" id="mob-btn-calc" class="flex flex-col items-center justify-center w-full h-full text-slate-500 hover:text-brand-600 dark:hover:text-sky-400 transition-colors">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                <span class="text-[10px] font-medium">Kalkulator</span>
+            </button>
+            <button onclick="switchView('team')" id="mob-btn-team" class="flex flex-col items-center justify-center w-full h-full text-slate-500 hover:text-brand-600 dark:hover:text-sky-400 transition-colors">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="text-[10px] font-medium">Tim</span>
+            </button>
         </div>
+    </nav>
 
-        <!-- ================= 2. CALCULATOR PAGE VIEW ================= -->
-        <div id="view-calculator" class="flex-grow pt-8 pb-16 view-hidden bg-[#f4f7fe]">
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full slide-up-element">
+    <main class="flex-grow pt-24 pb-10 md:pb-12 flex flex-col relative z-10 mobile-pb-safe">
+
+        <div id="view-landing" class="flex-grow flex flex-col">
+            
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-20 lg:py-24 flex flex-col md:flex-row items-center justify-between gap-16 lg:gap-28">
                 
-                <!-- Page Header -->
-                <div class="mb-8 sm:mb-10 text-center">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2 sm:mb-3">Kalkulator Entropi & Analisis Sandi</h2>
-                    <p class="text-slate-500 max-w-2xl mx-auto text-xs sm:text-sm md:text-base">Sistem ini memproses kata sandi Anda menggunakan perhitungan Matematika Diskrit murni yang berjalan sepenuhnya di perangkat Anda secara aman.</p>
-                </div>
-
-                <!-- Main Input Area -->
-                <div class="bg-white rounded-3xl card-shadow p-5 sm:p-8 md:p-10 mb-8 border border-slate-100">
-                    <div class="relative max-w-4xl mx-auto">
-                        <input type="password" id="password" autocomplete="off"
-                            class="w-full pl-5 pr-14 py-4 sm:py-5 rounded-2xl border-2 border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-base sm:text-xl font-medium bg-slate-50 text-slate-800 placeholder-slate-400"
-                            placeholder="Ketik kata sandi untuk dianalisis...">
-                        
-                        <button type="button" id="toggleVisibility" class="absolute inset-y-0 right-3 px-2 flex items-center text-slate-400 hover:text-indigo-600 transition-colors">
-                            <svg id="icon-eye-off" class="w-5 h-5 sm:w-6 sm:h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
-                            <svg id="icon-eye" class="w-5 h-5 sm:w-6 sm:h-6 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <div class="flex-1 text-center md:text-left w-full md:max-w-lg lg:max-w-2xl">
+                    <div class="animate-fade-up inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-100 dark:bg-indigo-500/10 border border-brand-200 dark:border-indigo-500/20 text-brand-700 dark:text-indigo-300 text-xs font-mono mb-6 shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-brand-500 dark:bg-indigo-400 animate-pulse"></span>
+                        KriptoMath | Matematika Diskrit
+                    </div>
+                    
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 dark:text-white tracking-tight leading-[1.15] mb-6 animate-fade-up delay-100 font-display">
+                        Analisis Kompleksitas <br> 
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-500 dark:from-sky-400 dark:to-indigo-500 dark:glow-text">
+                            Kata Sandi Digital
+                        </span>
+                    </h1>
+                    
+                    <p class="mt-4 text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto md:mx-0 font-light mb-10 animate-fade-up delay-200 leading-relaxed">
+                        Penerapan ilmu Matematika Diskrit, Kombinatorika, dan Teori Bilangan untuk mengevaluasi Entropi Shannon serta ketahanan sandi terhadap serangan <i>brute-force</i> komputasi modern.
+                    </p>
+                    
+                    <div class="animate-fade-up delay-300 flex justify-center md:justify-start">
+                        <button onclick="switchView('calculator')" class="group relative inline-flex items-center justify-center px-8 py-4 text-sm sm:text-base font-semibold text-white transition-all duration-300 bg-brand-600 dark:bg-indigo-600 border border-transparent rounded-xl shadow-[0_4px_15px_rgba(37,99,235,0.4)] hover:bg-brand-500 hover:shadow-[0_8px_25px_rgba(37,99,235,0.5)] dark:shadow-[0_0_20px_rgba(79,70,229,0.4)] dark:hover:bg-indigo-500 dark:hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] focus:outline-none hover:-translate-y-0.5">
+                            Coba Kalkulator Sekarang
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1.5 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                         </button>
                     </div>
+                </div>
 
-                    <!-- Progress Bar Area -->
-                    <div class="mt-6 sm:mt-8 max-w-4xl mx-auto">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-4 mb-3">
-                            <div>
-                                <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1">Kategori Keamanan</p>
-                                <span id="strength-text" class="text-lg sm:text-xl font-bold text-slate-300">Belum ada data</span>
+                <div class="flex-1 w-full max-w-[260px] sm:max-w-sm lg:max-w-md animate-fade-up delay-300 hidden md:block mt-8 md:mt-0 relative">
+                    <div class="relative w-full aspect-square scene-3d animate-float-3d mx-auto">
+                        <div class="layer-3d layer-1 bg-indigo-500/10 dark:bg-indigo-500/20 border-2 border-indigo-400/30 dark:border-indigo-400/50 backdrop-blur-sm flex items-center justify-center">
+                            <span class="font-mono text-3xl lg:text-4xl text-indigo-500/40 dark:text-indigo-500/50 font-bold tracking-widest">N<sup class="text-xl lg:text-2xl">L</sup></span>
+                        </div>
+                        <div class="layer-3d layer-2 bg-sky-500/10 dark:bg-sky-500/20 border-2 border-sky-400/40 dark:border-sky-400/60 backdrop-blur-md flex items-center justify-center">
+                            <svg class="w-20 h-20 lg:w-24 lg:h-24 text-sky-500/60 dark:text-sky-500/70" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 20h18M5 4v16M5 16s4-12 7-12 7 12 7 12" /></svg>
+                        </div>
+                        <div class="layer-3d layer-3 bg-white/60 dark:bg-slate-800/60 border border-white dark:border-slate-500/50 backdrop-blur-xl flex items-center justify-center">
+                            <svg class="w-28 h-28 lg:w-32 lg:h-32 text-brand-600 dark:text-white drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-10 right-4 transform rotate-6 font-accent text-brand-600 dark:text-sky-400 text-xl hidden lg:block">
+                        Model Enkripsi 3 Layer Berlapis
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full border-t border-slate-200 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/20 py-16 lg:py-24 mt-auto transition-colors duration-500 relative">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <div class="text-center mb-12 lg:mb-16 relative">
+                        <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 font-accent text-3xl text-indigo-500 dark:text-indigo-400">
+                            Bagaimana sistem kami bekerja?
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3 font-display">Arsitektur Analisis Sistem</h2>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm max-w-2xl mx-auto">Pendekatan matematis untuk mengukur kerentanan ruang kunci (keyspace) suatu kata sandi digital.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 max-w-5xl mx-auto">
+                        
+                        <div class="glass-panel rounded-2xl p-6 lg:p-8 hover:-translate-y-1.5 transition-transform duration-500 shadow-sm hover:shadow-xl dark:shadow-none dark:hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative">
+                            <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 transition-colors duration-300">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
                             </div>
-                            <div class="text-left sm:text-right w-full sm:w-auto">
-                                <span class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5 sm:mb-1 block">Entropi Shannon</span>
-                                <span id="entropy-badge" class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-lg bg-slate-100 text-slate-500 font-bold font-math text-sm sm:text-base border border-slate-200 transition-colors">
-                                    H = 0.00 bit
-                                </span>
+                            <h3 class="text-lg lg:text-xl font-bold text-slate-800 dark:text-white mb-3 font-display">1. Ekspansi Kombinatorika (N<sup>L</sup>)</h3>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                                Mengidentifikasi himpunan alfabet unik (N) dan panjang string (L) untuk menghitung total kemungkinan permutasi. Menambahkan variasi karakter mengekspansi ruang kombinasi secara eksponensial.
+                            </p>
+                            <span class="absolute bottom-3 right-4 font-accent text-indigo-400/80 dark:text-indigo-500/80 text-xl hidden lg:inline">
+                                Permutasi Berulang
+                            </span>
+                        </div>
+
+                        <div class="glass-panel rounded-2xl p-6 lg:p-8 hover:-translate-y-1.5 transition-transform duration-500 shadow-sm hover:shadow-xl dark:shadow-none dark:hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative">
+                            <div class="w-12 h-12 bg-sky-100 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/20 rounded-xl flex items-center justify-center text-sky-600 dark:text-sky-400 mb-6 transition-colors duration-300">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 20h18M5 4v16M5 16s4-12 7-12 7 12 7 12" /></svg>
+                            </div>
+                            <h3 class="text-lg lg:text-xl font-bold text-slate-800 dark:text-white mb-3 font-display">2. Evaluasi Entropi Shannon (H)</h3>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                                Mengukur tingkat ketidakpastian informasi dalam satuan bit menggunakan rumus <code class="font-mono text-sky-600 dark:text-sky-300 text-xs bg-sky-100 dark:bg-sky-500/10 px-1.5 py-0.5 rounded border border-sky-200 dark:border-sky-800 transition-colors">H = L * log₂(N)</code>. Entropi yang tinggi menandakan distribusi acak yang tahan terhadap <i>dictionary attack</i>.
+                            </p>
+                            <span class="absolute bottom-3 right-4 font-accent text-sky-400/80 dark:text-sky-500/80 text-xl hidden lg:inline">
+                                Teori Informasi Shannon
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-calculator" class="flex-grow view-hidden">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                
+                <div class="mb-8 md:mb-12 text-center">
+                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3 font-display tracking-tight">Analisis Kriptografi</h2>
+                </div>
+
+                <div class="glass-panel rounded-3xl p-5 sm:p-8 md:p-10 mb-8 relative overflow-hidden shadow-lg">
+                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-500 via-sky-400 to-indigo-500"></div>
+                    
+                    <div class="relative max-w-3xl mx-auto mt-2">
+                        <label class="block text-[10px] sm:text-xs font-mono font-semibold text-slate-500 dark:text-slate-400 mb-2 ml-1 tracking-wider">TARGET_STRING_INPUT</label>
+                        <div class="relative">
+                            <input type="password" id="password" autocomplete="off"
+                                class="w-full pl-5 sm:pl-6 pr-14 py-4 sm:py-5 rounded-2xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 text-slate-900 dark:text-white font-mono text-base sm:text-lg focus:outline-none focus:border-brand-500 dark:focus:border-sky-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-sky-500/30 transition-all placeholder-slate-400 dark:placeholder-slate-600 shadow-inner"
+                                placeholder="> Ketik kata sandi di sini...">
+                            
+                            <button type="button" id="toggleVisibility" class="absolute inset-y-0 right-4 px-2 flex items-center text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-sky-400 transition-colors duration-300 focus:outline-none">
+                                <svg id="icon-eye-off" class="w-5 h-5 sm:w-6 sm:h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                                <svg id="icon-eye" class="w-5 h-5 sm:w-6 sm:h-6 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 sm:mt-10 max-w-3xl mx-auto">
+                        <div class="flex justify-between items-end mb-3 px-1">
+                            <div>
+                                <p class="text-[9px] sm:text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5">Status Kerentanan</p>
+                                <span id="strength-text" class="text-sm sm:text-base font-bold text-slate-400 font-display">Menunggu Input...</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[9px] sm:text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest mb-1 sm:mb-1.5 block">Entropi (H)</span>
+                                <span id="entropy-badge" class="font-mono text-sm sm:text-base font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 transition-colors">0.00 bit</span>
                             </div>
                         </div>
-                        <div class="w-full bg-slate-100 rounded-full h-2.5 sm:h-3 overflow-hidden">
-                            <div id="strength-bar" class="bg-slate-300 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden shadow-inner">
+                            <div id="strength-bar" class="bg-slate-400 dark:bg-slate-600 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Balanced 2-Column Grid Layout -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     
-                    <!-- Kombinatorika -->
-                    <div class="bg-white rounded-3xl card-shadow p-6 sm:p-7 border border-slate-100 flex flex-col">
-                        <div class="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm:w-6 sm:h-6"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                            </div>
-                            <h3 class="text-base sm:text-lg font-bold text-slate-800">Kombinatorika</h3>
+                    <div class="glass-panel rounded-2xl p-6 border border-slate-200 dark:border-slate-800 relative overflow-hidden group hover:border-indigo-300 dark:hover:border-indigo-500/50">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 dark:opacity-10 transition-transform duration-700 group-hover:scale-125 group-hover:rotate-6">
+                            <svg class="w-20 h-20 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
                         </div>
-                        <div class="space-y-3 sm:space-y-4 flex-grow">
-                            <div class="flex justify-between items-center p-3 sm:p-4 bg-slate-50 rounded-xl">
-                                <span class="text-xs sm:text-sm font-medium text-slate-500">Alfabet (N)</span>
-                                <span class="text-xl sm:text-2xl font-bold text-indigo-600 font-math" id="val-n">0</span>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-white mb-5 uppercase tracking-wider flex items-center gap-2 font-display">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></span>
+                            Parameter Kombinatorika
+                        </h3>
+                        <div class="space-y-3 relative z-10">
+                            <div class="flex justify-between items-center p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800/50 transition-colors">
+                                <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 font-mono">Himpunan Alfabet (N)</span>
+                                <span class="text-lg sm:text-xl font-bold text-indigo-600 dark:text-indigo-400 font-mono" id="val-n">0</span>
                             </div>
-                            <div class="flex justify-between items-center p-3 sm:p-4 bg-slate-50 rounded-xl">
-                                <span class="text-xs sm:text-sm font-medium text-slate-500">Panjang (L)</span>
-                                <span class="text-xl sm:text-2xl font-bold text-indigo-600 font-math" id="val-l">0</span>
+                            <div class="flex justify-between items-center p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800/50 transition-colors">
+                                <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 font-mono">Panjang Karakter (L)</span>
+                                <span class="text-lg sm:text-xl font-bold text-indigo-600 dark:text-indigo-400 font-mono" id="val-l">0</span>
                             </div>
-                            <div class="p-3 sm:p-4 bg-slate-50 rounded-xl">
-                                <span class="text-xs sm:text-sm font-medium text-slate-500 block mb-1">Kemungkinan K = N<sup class="text-[9px]">L</sup></span>
-                                <span class="text-base sm:text-lg font-bold text-slate-800 font-math break-all" id="val-k">0</span>
+                            <div class="p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800/50 transition-colors relative">
+                                <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 font-mono block mb-1">Total Permutasi (K = N<sup class="text-[8px]">L</sup>)</span>
+                                <span class="text-sm sm:text-base font-bold text-slate-900 dark:text-white font-mono break-all" id="val-k">0</span>
+                                <span class="absolute bottom-1.5 right-3 font-accent text-indigo-500 text-lg hidden lg:inline">Batas atas semesta</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Teori Bilangan -->
-                    <div class="bg-white rounded-3xl card-shadow p-6 sm:p-7 border border-slate-100 flex flex-col">
-                        <div class="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
-                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm:w-6 sm:h-6"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                            </div>
-                            <h3 class="text-base sm:text-lg font-bold text-slate-800">Teori Bilangan</h3>
+                    <div class="glass-panel rounded-2xl p-6 border border-slate-200 dark:border-slate-800 relative overflow-hidden group hover:border-sky-300 dark:hover:border-sky-500/50">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 dark:opacity-10 transition-transform duration-700 group-hover:scale-125 group-hover:rotate-6">
+                            <svg class="w-20 h-20 text-sky-500 dark:text-sky-400" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                         </div>
-                        <div class="space-y-3 sm:space-y-4 flex-grow">
-                            <div class="p-3 sm:p-4 bg-slate-50 rounded-xl">
-                                <span class="text-xs sm:text-sm font-medium text-slate-500 block mb-1">Faktorisasi Prima (N)</span>
-                                <span class="text-base sm:text-lg font-bold text-purple-700 font-math" id="val-prime">-</span>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-white mb-5 uppercase tracking-wider flex items-center gap-2 font-display">
+                            <span class="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]"></span>
+                            Sifat Teori Bilangan
+                        </h3>
+                        <div class="space-y-3 relative z-10 flex flex-col h-[calc(100%-2.5rem)]">
+                            <div class="p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800/50 transition-colors">
+                                <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 font-mono block mb-1">Faktorisasi Prima (N)</span>
+                                <span class="text-sm sm:text-base font-bold text-sky-600 dark:text-sky-400 font-mono" id="val-prime">-</span>
                             </div>
-                            <div class="flex justify-between items-center p-3 sm:p-4 bg-slate-50 rounded-xl">
-                                <span class="text-xs sm:text-sm font-medium text-slate-500">GCD (N, 26)</span>
-                                <span class="text-xl sm:text-2xl font-bold text-purple-600 font-math" id="val-gcd">-</span>
+                            <div class="flex justify-between items-center p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800/50 transition-colors">
+                                <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 font-mono">Nilai GCD (N, 26)</span>
+                                <span class="text-lg sm:text-xl font-bold text-sky-600 dark:text-sky-400 font-mono" id="val-gcd">-</span>
                             </div>
-                            <div id="val-coprime" class="w-full text-center px-3 sm:px-4 py-3 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100 text-slate-500 border border-slate-200">
-                                Status Relatif Prima
+                            <div id="val-coprime" class="w-full text-center px-3 py-3 text-[10px] sm:text-xs font-mono rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 mt-auto transition-colors duration-500">
+                                Evaluasi Sifat Relatif Prima
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-6 border border-slate-200 dark:border-slate-800 relative overflow-hidden group hover:border-emerald-300 dark:hover:border-emerald-500/50 md:col-span-2 lg:col-span-1">
+                        <div class="absolute top-0 right-0 p-4 opacity-5 dark:opacity-10 transition-transform duration-700 group-hover:scale-125 group-hover:rotate-6">
+                            <svg class="w-20 h-20 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-white mb-5 uppercase tracking-wider flex items-center gap-2 font-display">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                            Estimasi Waktu Retas
+                        </h3>
+                        <div class="relative z-10 flex flex-col h-[calc(100%-2.5rem)] justify-between">
+                            <p class="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                                Waktu tebakan secara <i>Brute-Force</i> berdasarkan komputasi dengan kecepatan konstan:
+                                <span class="inline-block mt-1.5 font-bold font-mono text-slate-800 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 transition-colors">v = 10<sup class="text-[8px]">9</sup> tebakan/detik</span>
+                            </p>
+                            
+                            <div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl p-5 sm:p-6 text-center mt-auto transition-colors duration-500">
+                                <span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 font-mono block mb-1">T = K / (2 &times; v)</span>
+                                <p class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono break-words leading-tight" id="val-time">0 detik</p>
                             </div>
                         </div>
                     </div>
@@ -281,88 +301,116 @@
             </div>
         </div>
 
-        <!-- ================= 3. TEAM PAGE VIEW ================= -->
-        <div id="view-team" class="flex-grow pt-12 pb-24 view-hidden bg-[#f4f7fe]">
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full slide-up-element">
+        <div id="view-team" class="flex-grow view-hidden">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                 
-                <div class="text-center mb-10 sm:mb-16">
-                    <span class="font-cursive text-2xl sm:text-3xl text-indigo-500 mb-1 sm:mb-2 block">Di balik layar</span>
-                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3 sm:mb-4">Tim Peneliti</h2>
-                    <p class="text-slate-500 max-w-2xl mx-auto text-xs sm:text-sm md:text-base">Mahasiswa Program Studi Teknik Informatika, Politeknik Caltex Riau (TA. 2025/2026). <br> Proyek Akhir Matematika Diskrit.</p>
+                <div class="text-center mb-12 sm:mb-16">
+                    <div class="inline-block transform -rotate-2 mb-4">
+                        <span class="font-accent text-2xl sm:text-3xl text-brand-500 dark:text-indigo-400">Di balik layar pengembangan</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-3 sm:mb-4 font-display">Tim Peneliti</h2>
+                    <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-xs sm:text-sm">Prodi Teknik Informatika, Politeknik Caltex Riau (TA. 2025/2026).</p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-5xl mx-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 max-w-5xl mx-auto">
                     
-                    <!-- Member 1 -->
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-slate-100 text-center relative overflow-hidden group">
-                        <div class="absolute top-0 left-0 w-full h-2 bg-indigo-500 transform origin-left transition-transform group-hover:scale-x-100"></div>
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 text-xl sm:text-2xl font-bold mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
+                    <div class="glass-panel rounded-3xl p-6 text-center group hover:-translate-y-2 dark:hover:border-indigo-500/50 hover:shadow-xl dark:hover:shadow-[0_10px_30px_rgba(99,102,241,0.2)] transition-all duration-500">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-indigo-200 dark:border-slate-700 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-2xl font-bold mb-4 group-hover:border-indigo-400 dark:group-hover:border-indigo-500 transition-colors duration-500 shadow-sm dark:shadow-inner font-display">
                             A
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-800">Alichia J. J.</h3>
-                        <p class="text-indigo-600 font-math text-xs sm:text-sm mt-1 bg-indigo-50 inline-block px-3 py-1 rounded-full">NIM: 2455301019</p>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white font-display">Alichia J. J.</h3>
+                        <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-1 font-semibold">Peneliti Utama</p>
+                        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 transition-colors">
+                            <p class="text-indigo-600 dark:text-indigo-400 font-mono text-xs font-semibold">ID: 2455301019</p>
+                        </div>
                     </div>
 
-                    <!-- Member 2 -->
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-slate-100 text-center relative overflow-hidden group">
-                        <div class="absolute top-0 left-0 w-full h-2 bg-blue-500 transform origin-left transition-transform group-hover:scale-x-100"></div>
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-xl sm:text-2xl font-bold mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                    <div class="glass-panel rounded-3xl p-6 text-center group hover:-translate-y-2 dark:hover:border-sky-500/50 hover:shadow-xl dark:hover:shadow-[0_10px_30px_rgba(56,189,248,0.2)] transition-all duration-500">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-sky-200 dark:border-slate-700 flex items-center justify-center text-sky-600 dark:text-sky-400 text-2xl font-bold mb-4 group-hover:border-sky-400 dark:group-hover:border-sky-500 transition-colors duration-500 shadow-sm dark:shadow-inner font-display">
                             J
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-800">Jessica Lyra</h3>
-                        <p class="text-blue-600 font-math text-xs sm:text-sm mt-1 bg-blue-50 inline-block px-3 py-1 rounded-full">NIM: 2455301085</p>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white font-display">Jessica Lyra</h3>
+                        <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-1 font-semibold">Analis Teori</p>
+                        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 transition-colors">
+                            <p class="text-sky-600 dark:text-sky-400 font-mono text-xs font-semibold">ID: 2455301085</p>
+                        </div>
                     </div>
 
-                    <!-- Member 3 -->
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-slate-100 text-center relative overflow-hidden group">
-                        <div class="absolute top-0 left-0 w-full h-2 bg-purple-500 transform origin-left transition-transform group-hover:scale-x-100"></div>
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-purple-50 rounded-full flex items-center justify-center text-purple-600 text-xl sm:text-2xl font-bold mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                    <div class="glass-panel rounded-3xl p-6 text-center group hover:-translate-y-2 dark:hover:border-purple-500/50 hover:shadow-xl dark:hover:shadow-[0_10px_30px_rgba(168,85,247,0.2)] transition-all duration-500">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-purple-200 dark:border-slate-700 flex items-center justify-center text-purple-600 dark:text-purple-400 text-2xl font-bold mb-4 group-hover:border-purple-400 dark:group-hover:border-purple-500 transition-colors duration-500 shadow-sm dark:shadow-inner font-display">
                             N
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-800">Nadin Cantika S.</h3>
-                        <p class="text-purple-600 font-math text-xs sm:text-sm mt-1 bg-purple-50 inline-block px-3 py-1 rounded-full">NIM: 2455301133</p>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white font-display">Nadin Cantika S.</h3>
+                        <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-1 font-semibold">Implementator Sistem</p>
+                        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 transition-colors">
+                            <p class="text-purple-600 dark:text-purple-400 font-mono text-xs font-semibold">ID: 2455301133</p>
+                        </div>
                     </div>
 
-                    <!-- Member 4 -->
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-slate-100 text-center relative overflow-hidden group">
-                        <div class="absolute top-0 left-0 w-full h-2 bg-teal-500 transform origin-left transition-transform group-hover:scale-x-100"></div>
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-teal-50 rounded-full flex items-center justify-center text-teal-600 text-xl sm:text-2xl font-bold mb-4 group-hover:bg-teal-600 group-hover:text-white transition-colors duration-300">
+                    <div class="glass-panel rounded-3xl p-6 text-center group hover:-translate-y-2 dark:hover:border-teal-500/50 hover:shadow-xl dark:hover:shadow-[0_10px_30px_rgba(20,184,166,0.2)] transition-all duration-500">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-slate-50 dark:bg-slate-800 border-2 border-teal-200 dark:border-slate-700 flex items-center justify-center text-teal-600 dark:text-teal-400 text-2xl font-bold mb-4 group-hover:border-teal-400 dark:group-hover:border-teal-500 transition-colors duration-500 shadow-sm dark:shadow-inner font-display">
                             D
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-800">David Geraldo</h3>
-                        <p class="text-teal-600 font-math text-xs sm:text-sm mt-1 bg-teal-50 inline-block px-3 py-1 rounded-full">NIM: 2455301043</p>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white font-display">David Geraldo</h3>
+                        <p class="text-slate-500 text-[10px] uppercase tracking-widest mt-1 font-semibold">Dokumenter & Penguji</p>
+                        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 transition-colors">
+                            <p class="text-teal-600 dark:text-teal-400 font-mono text-xs font-semibold">ID: 2455301043</p>
+                        </div>
                     </div>
 
                 </div>
 
-                <!-- Dosen Pembimbing -->
-                <div class="mt-10 sm:mt-12 text-center max-w-xs sm:max-w-md mx-auto bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
-                    <p class="text-[10px] uppercase tracking-widest font-semibold text-slate-400 mb-1 sm:mb-2">Dosen Pengampu</p>
-                    <h4 class="text-base sm:text-lg font-bold text-slate-800">Mona Elviyenti</h4>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Mata Kuliah Matematika Diskrit</p>
+                <div class="mt-12 text-center max-w-xs mx-auto glass-panel rounded-2xl p-5 border border-slate-200 dark:border-slate-800 transition-colors">
+                    <p class="text-[10px] uppercase tracking-widest font-mono text-slate-500 mb-2 font-semibold">Dosen Pengampu</p>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white font-display">Mona Elviyenti</h4>
+                    <p class="text-xs text-slate-500 mt-1">Matematika Diskrit</p>
                 </div>
 
             </div>
         </div>
     </main>
 
-    <!-- ================= GLOBAL FOOTER ================= -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-8 sm:py-10 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
-            <div>
-                <div class="flex items-center justify-center md:justify-start gap-2 mb-2">
-                    <div class="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center text-white font-bold text-xs">∑</div>
-                    <span class="font-bold text-base sm:text-lg tracking-tight text-white">Kripto<span class="text-indigo-400">Math</span></span>
+    <footer class="bg-slate-50 dark:bg-slate-950 border-t border-slate-200/80 dark:border-slate-800/80 pt-12 pb-28 md:pb-12 transition-colors duration-500 z-10 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10 border-b border-slate-200 dark:border-slate-800/50">
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 bg-brand-600 dark:bg-sky-500 rounded flex items-center justify-center text-white font-bold text-xs">∑</div>
+                        <span class="font-bold text-lg tracking-tight text-slate-900 dark:text-white font-display">Kripto<span class="text-brand-600 dark:text-sky-400">Math</span></span>
+                    </div>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-xs">
+                        KriptoMath dibangun untuk mempermudah pemahaman kombinatorika di era keamanan cyber modern.
+                    </p>
+                    <div class="font-accent text-indigo-500 dark:text-indigo-400 text-xl mt-1">
+                        Dibuat khusus untuk presentasi tugas akhir
+                    </div>
                 </div>
-                <p class="text-slate-400 text-xs sm:text-sm">Keamanan Digital Berbasis Teori Bilangan Kombinatorika.</p>
+                
+                <div class="space-y-2">
+                    <h4 class="text-xs uppercase tracking-widest font-bold text-slate-800 dark:text-slate-200 font-display">Teori Penunjang</h4>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                        Evaluasi ini berlandaskan entropi shannon dan perhitungan faktorisasi prima algoritma Euclidean untuk menemukan nilai GCD terbesar.
+                    </p>
+                    <span class="block font-mono text-[10px] text-brand-600 dark:text-sky-400">H = L &times; log₂N</span>
+                </div>
+                
+                <div class="space-y-2">
+                    <h4 class="text-xs uppercase tracking-widest font-bold text-slate-800 dark:text-slate-200 font-display">Sertifikasi & Proyek</h4>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                        Program Studi Teknik Informatika, Politeknik Caltex Riau.
+                    </p>
+                </div>
             </div>
-            <div class="text-slate-500 text-xs sm:text-sm">
-                &copy; 2025/2026 Teknik Informatika - Politeknik Caltex Riau.
+            
+            <div class="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <span class="text-slate-400 dark:text-slate-500 text-[10px] font-mono tracking-widest uppercase">KRIPTOMATH</span>
+                <div class="text-slate-500 dark:text-slate-600 text-[10px] font-mono tracking-widest uppercase text-center sm:text-right">
+                    &copy; 2025/2026 Teknik Informatika - Politeknik Caltex Riau.
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- Script Logic -->
     <script src="script.js"></script>
 </body>
 </html>
