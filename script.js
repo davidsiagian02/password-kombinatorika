@@ -158,7 +158,7 @@ const analyzePassword = () => {
     } else if (entropy < 35) { 
         DOM.strengthBar.style.width = '25%';
         DOM.strengthBar.className = 'h-full rounded-full transition-all duration-500 ease-out bg-rose-500 dark:shadow-[0_0_15px_rgba(244,63,94,0.6)]';
-        DOM.strengthText.innerText = 'Sangat Lemah';
+        DOM.strengthText.innerText = 'Lemah';
         DOM.strengthText.className = 'text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400 font-display tracking-wide';
         DOM.entropyBadge.className = 'font-mono text-xs sm:text-sm font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-500/20 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-500/30 transition-colors';
     } else if (entropy < 60) {
